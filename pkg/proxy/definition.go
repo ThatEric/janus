@@ -12,7 +12,7 @@ import (
 type Definition struct {
 	PreserveHost        bool     `bson:"preserve_host" json:"preserve_host" mapstructure:"preserve_host"`
 	ListenPath          string   `bson:"listen_path" json:"listen_path" mapstructure:"listen_path" valid:"required,urlpath"`
-	UpstreamURL         string   `bson:"upstream_url" json:"upstream_url" mapstructure:"upstream_url" valid:"url,required"`
+	UpstreamURL         string   `bson:"upstream_url" json:"upstream_url" mapstructure:"upstream_url" valid:"url,deprecated~upstream_url is deprecated - please use upstreams instead"`
 	InsecureSkipVerify  bool     `bson:"insecure_skip_verify" json:"insecure_skip_verify" mapstructure:"insecure_skip_verify"`
 	StripPath           bool     `bson:"strip_path" json:"strip_path" mapstructure:"strip_path"`
 	AppendPath          bool     `bson:"append_path" json:"append_path" mapstructure:"append_path"`
@@ -92,5 +92,13 @@ func init() {
 		}
 
 		return strings.Index(s, "/") == 0
+	})
+
+	govalidator.CustomTypeTagMap.Set("deprecated", func(i interface{}, o interface{}) bool {
+		s, ok := i.(string)
+		if !ok {
+			return false
+		}
+		return s == ""
 	})
 }
